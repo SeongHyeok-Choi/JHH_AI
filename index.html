@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>AI 따라하기 강의실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: lab-notebook — a left rail listing lectures in order, a reading column (~70ch) for the current lecture. Rail folds into a toggle on phones. */
+:root{
+  --bg:#f3f5f4; --paper:#ffffff; --ink:#18221f; --muted:#5d6b66; --line:#d9e0dd;
+  --accent:#2f55d4; --accent-soft:#e6ecfc; --done:#1f8a5b; --done-soft:#e1f3ea;
+  --code-bg:#14201c; --code-fg:#e3ece8; --inline-code:#e9eeec;
+  --f-display:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101614; --paper:#161e1b; --ink:#e4ebe8; --muted:#9aa8a2; --line:#2a3531;
+  --accent:#8aa6ff; --accent-soft:#1f2a4a; --done:#5ccf99; --done-soft:#173226;
+  --code-bg:#0b100e; --code-fg:#dfe8e4; --inline-code:#23302b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101614; --paper:#161e1b; --ink:#e4ebe8; --muted:#9aa8a2; --line:#2a3531;
+  --accent:#8aa6ff; --accent-soft:#1f2a4a; --done:#5ccf99; --done-soft:#173226;
+  --code-bg:#0b100e; --code-fg:#dfe8e4; --inline-code:#23302b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;word-break:keep-all;overflow-wrap:anywhere}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.shell{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:24px 64px;display:grid;grid-template-columns:280px minmax(0,1fr);gap:40px;align-items:start}
+
+/* rail */
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:20px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand .eyebrow{font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-family:var(--f-mono)}
+.brand h1{font-family:var(--f-display);font-size:22px;line-height:1.35;margin:0;text-wrap:balance}
+.note{font-size:13px;line-height:1.6;color:var(--muted);padding:10px 12px;border:1px dashed var(--line);border-radius:8px}
+.note strong{color:var(--ink)}
+.progress{display:flex;flex-direction:column;gap:6px}
+.progress .row{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--done);transition:width .3s}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.list button{width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:8px;display:grid;grid-template-columns:32px minmax(0,1fr) 18px;gap:8px;align-items:start;line-height:1.45}
+.list button:hover{background:var(--paper)}
+.list button[aria-current="true"]{background:var(--accent-soft)}
+.list .num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:2px;font-variant-numeric:tabular-nums}
+.list .t{font-size:14.5px;font-weight:500}
+.list .d{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
+.list .chk{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);margin-top:3px}
+.list .is-done .chk{background:var(--done);border-color:var(--done)}
+.list .upcoming{padding:9px 10px;font-size:13px;color:var(--muted);display:grid;grid-template-columns:32px 1fr;gap:8px}
+.rail-toggle{display:none}
+
+/* content */
+main{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding-inline:clamp(18px,5vw,56px);padding-block:40px 48px}
+.lec-head{display:flex;flex-direction:column;gap:10px;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.lec-meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lec-head h2{font-family:var(--f-display);font-size:clamp(26px,3.4vw,34px);line-height:1.3;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lec-sum{color:var(--muted);margin:0;max-width:65ch}
+
+.prose{max-width:70ch}
+.prose h1,.prose h2,.prose h3,.prose h4{font-family:var(--f-display);line-height:1.4;text-wrap:balance;margin:2em 0 .6em}
+.prose h1{font-size:24px}.prose h2{font-size:21px}.prose h3{font-size:18px}.prose h4{font-size:16px}
+.prose > :first-child{margin-top:0}
+.prose p,.prose ul,.prose ol,.prose blockquote,.prose table{margin:0 0 1.1em}
+.prose ul,.prose ol{padding-left:1.4em}
+.prose li{margin:.25em 0}
+.prose li > p{margin:0}
+.prose blockquote{border-left:3px solid var(--accent);padding:.4em 1em;color:var(--muted);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.prose blockquote p:last-child{margin:0}
+.prose code{font-family:var(--f-mono);font-size:.88em;background:var(--inline-code);padding:.12em .4em;border-radius:4px}
+.prose img{border-radius:8px;border:1px solid var(--line)}
+.prose hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+.table-wrap{overflow-x:auto;margin:0 0 1.1em}
+.prose table{border-collapse:collapse;font-size:14.5px;min-width:100%}
+.prose th,.prose td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+.prose th{background:var(--bg)}
+
+.code{position:relative;margin:0 0 1.3em;border-radius:10px;background:var(--code-bg);overflow:hidden}
+.code .bar-top{display:flex;justify-content:space-between;align-items:center;padding:6px 8px 6px 14px;font-family:var(--f-mono);font-size:11.5px;color:#8fa39b;border-bottom:1px solid #ffffff14}
+.code pre{margin:0;padding:14px 16px;overflow-x:auto}
+.code pre code{background:none;padding:0;color:var(--code-fg);font-size:13.5px;line-height:1.6;font-family:var(--f-mono);white-space:pre}
+.copy{background:#ffffff14;border:0;color:#dfe8e4;font-size:12px;padding:4px 10px;border-radius:6px;font-family:var(--f-body)}
+.copy:hover{background:#ffffff26}
+.copy.ok{background:var(--done);color:#fff}
+
+.lec-foot{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:20px}
+.done-btn{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--done);background:none;color:var(--done);font-weight:600}
+.done-btn[aria-pressed="true"]{background:var(--done);color:var(--paper)}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nav button{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.nav button:hover{border-color:var(--accent)}
+.nav button.next{text-align:right;grid-column:2}
+.nav small{font-size:12px;color:var(--muted)}
+.nav span{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:16px;padding-block:16px 48px}
+  .rail{position:static;gap:14px}
+  .rail-toggle{display:flex;justify-content:space-between;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px}
+  .rail .collapsible{display:none}
+  .rail.open .collapsible{display:flex;flex-direction:column;gap:14px}
+  main{border-radius:12px}
+}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+<div class="shell">
+  <aside class="rail" id="rail">
+    <div class="brand">
+      <span class="eyebrow">AI Class · 따라하기</span>
+      <h1>AI 따라하기 강의실</h1>
+    </div>
+    <button class="rail-toggle" id="railToggle" aria-expanded="false" aria-controls="railBody">
+      <span id="railToggleLabel">강의 목록</span><span aria-hidden="true">▾</span>
+    </button>
+    <div class="collapsible" id="railBody">
+      <div class="progress">
+        <div class="row"><span>내 진도</span><span id="progText">0 / 0</span></div>
+        <div class="bar"><i id="progBar"></i></div>
+      </div>
+      <ol class="list" id="list"></ol>
+      <p class="note"><strong>과제 제출은 없어요.</strong> 강의를 읽고 그대로 따라 해 보면 됩니다. 다 따라 했으면 ‘완료’를 눌러 진도를 표시하세요. 진도는 이 기기의 브라우저에만 저장돼요.</p>
+    </div>
+  </aside>
+
+  <main id="main" aria-live="polite"></main>
+</div>
+
+<!--
+  ===== 강의 데이터 =====
+  새 강의는 아래에 <script type="text/markdown" class="lecture" ...> 블록을 하나 추가하면 됩니다.
+  data-id: 고유 키(영문/숫자, 바꾸지 말 것 — 진도 저장에 쓰임)
+  data-no: 강의 번호 / data-title / data-date / data-duration / data-summary
+-->
+<script type="text/markdown" class="lecture" data-id="l0" data-no="0" data-title="시작하기 전에" data-date="2026-10-12" data-duration="5분" data-summary="이 강의실을 쓰는 방법과 미리 준비할 것을 정리했어요.">
+## 이 사이트는 이렇게 써요
+
+1. 왼쪽(휴대폰에서는 위쪽) **강의 목록**에서 강의를 고릅니다.
+2. 강의 내용을 위에서부터 읽으면서 **그대로 따라 해 봅니다.**
+3. 다 따라 했으면 맨 아래 **완료** 버튼을 눌러 표시합니다.
+4. 새 강의가 올라오면 목록에 번호 순서대로 추가돼요. 같은 주소로 다시 들어오면 됩니다.
+
+> 과제는 제출하지 않아도 돼요. 막히는 부분이 있으면 편하게 물어보세요.
+
+## 코드 복사하기
+
+강의에 나오는 코드는 이런 상자 안에 들어 있어요. 오른쪽 위 **복사** 버튼을 누르면 내용 전체가 복사됩니다. 그대로 붙여 넣어 실행해 보세요.
+
+```python
+print("안녕하세요, AI 강의실!")
+```
+
+## 미리 준비할 것
+
+- 인터넷이 되는 컴퓨터 (노트북이면 충분해요)
+- 최신 버전의 크롬 또는 엣지 브라우저
+- 강의에서 따로 안내하는 계정이나 프로그램이 있으면 그 강의 첫 부분에 적어 둘게요
+
+준비됐으면 다음 강의부터 시작하면 됩니다.
+</script>
+
+<!-- 여기 아래에 새 강의 추가 -->
+
+<script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+<script>
+(function(){
+  const store = {
+    get(k){ try{ return JSON.parse(localStorage.getItem(k) || "null"); }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  };
+  const DONE_KEY = "aiclass.done";
+  let done = new Set(store.get(DONE_KEY) || []);
+
+  const lectures = [...document.querySelectorAll("script.lecture")].map(el => ({
+    id: el.dataset.id,
+    no: el.dataset.no,
+    title: el.dataset.title,
+    date: el.dataset.date || "",
+    duration: el.dataset.duration || "",
+    summary: el.dataset.summary || "",
+    md: dedent(el.textContent)
+  }));
+
+  function dedent(s){
+    s = s.replace(/^\n+|\s+$/g, "");
+    const lines = s.split("\n");
+    const ind = Math.min(...lines.filter(l => l.trim()).map(l => l.match(/^ */)[0].length));
+    return lines.map(l => l.slice(ind)).join("\n");
+  }
+  function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function fmtDate(d){
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+    return m ? `${m[1]}.${m[2]}.${m[3]}` : d;
+  }
+
+  function renderMd(md){
+    if (window.marked && marked.parse){
+      return marked.parse(md, { gfm:true, breaks:false, mangle:false, headerIds:false });
+    }
+    // fallback: no library — show text as-is
+    return "<pre style='white-space:pre-wrap'>" + esc(md) + "</pre>";
+  }
+
+  function enhance(root){
+    root.querySelectorAll("pre > code").forEach(code => {
+      const pre = code.parentElement;
+      const lang = (code.className.match(/language-([\w+-]+)/) || [])[1] || "code";
+      const wrap = document.createElement("div");
+      wrap.className = "code";
+      wrap.innerHTML = `<div class="bar-top"><span>${esc(lang)}</span><button type="button" class="copy">복사</button></div>`;
+      pre.replaceWith(wrap);
+      wrap.appendChild(pre);
+      const btn = wrap.querySelector(".copy");
+      btn.addEventListener("click", () => {
+        const text = code.textContent;
+        const ok = () => { btn.textContent = "복사됨"; btn.classList.add("ok"); setTimeout(() => { btn.textContent = "복사"; btn.classList.remove("ok"); }, 1600); };
+        const fallback = () => {
+          const r = document.createRange(); r.selectNodeContents(code);
+          const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+          btn.textContent = "Ctrl+C로 복사";
+        };
+        try { navigator.clipboard.writeText(text).then(ok, fallback); } catch(e){ fallback(); }
+      });
+    });
+    root.querySelectorAll("table").forEach(t => {
+      const w = document.createElement("div"); w.className = "table-wrap";
+      t.replaceWith(w); w.appendChild(t);
+    });
+    root.querySelectorAll("a[href^='http']").forEach(a => { a.target = "_blank"; a.rel = "noopener"; });
+  }
+
+  const listEl = document.getElementById("list");
+  const mainEl = document.getElementById("main");
+  const rail = document.getElementById("rail");
+  const railToggle = document.getElementById("railToggle");
+  let current = null;
+
+  function renderList(){
+    listEl.innerHTML = "";
+    lectures.forEach(l => {
+      const li = document.createElement("li");
+      li.className = done.has(l.id) ? "is-done" : "";
+      li.innerHTML = `<button type="button" data-id="${esc(l.id)}" aria-current="${l.id===current}">
+        <span class="num">${esc(String(l.no).padStart(2,"0"))}</span>
+        <span class="t">${esc(l.title)}<span class="d">${esc(fmtDate(l.date))}${l.duration ? " · " + esc(l.duration) : ""}</span></span>
+        <span class="chk" aria-label="${done.has(l.id) ? "완료" : "미완료"}"></span></button>`;
+      listEl.appendChild(li);
+    });
+    const up = document.createElement("li");
+    up.className = "upcoming";
+    up.innerHTML = `<span class="num" style="font-family:var(--f-mono)">··</span><span>다음 강의 준비 중</span>`;
+    listEl.appendChild(up);
+
+    const n = lectures.length, d = lectures.filter(l => done.has(l.id)).length;
+    document.getElementById("progText").textContent = `${d} / ${n}`;
+    document.getElementById("progBar").style.width = n ? (d / n * 100) + "%" : "0";
+  }
+
+  function show(id, scroll){
+    const idx = Math.max(0, lectures.findIndex(l => l.id === id));
+    const l = lectures[idx];
+    if (!l) return;
+    current = l.id;
+    try { history.replaceState(null, "", "#" + l.id); } catch(e){}
+    const prev = lectures[idx-1], next = lectures[idx+1];
+    const isDone = done.has(l.id);
+    mainEl.innerHTML = `
+      <header class="lec-head">
+        <div class="lec-meta"><span>${esc(l.no)}강</span>${l.date ? `<span>${esc(fmtDate(l.date))}</span>` : ""}${l.duration ? `<span>${esc(l.duration)}</span>` : ""}</div>
+        <h2>${esc(l.title)}</h2>
+        ${l.summary ? `<p class="lec-sum">${esc(l.summary)}</p>` : ""}
+      </header>
+      <article class="prose">${renderMd(l.md)}</article>
+      <footer class="lec-foot">
+        <button type="button" class="done-btn" id="doneBtn" aria-pressed="${isDone}">${isDone ? "✓ 따라 하기 완료" : "따라 했으면 완료 표시"}</button>
+        <nav class="nav">
+          ${prev ? `<button type="button" data-go="${esc(prev.id)}"><small>← 이전 강의</small><span>${esc(prev.title)}</span></button>` : ""}
+          ${next ? `<button type="button" class="next" data-go="${esc(next.id)}"><small>다음 강의 →</small><span>${esc(next.title)}</span></button>` : ""}
+        </nav>
+      </footer>`;
+    enhance(mainEl.querySelector(".prose"));
+    document.getElementById("doneBtn").addEventListener("click", () => {
+      done.has(l.id) ? done.delete(l.id) : done.add(l.id);
+      store.set(DONE_KEY, [...done]);
+      show(l.id, false);
+    });
+    mainEl.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go, true)));
+    document.getElementById("railToggleLabel").textContent = `강의 목록 · ${l.no}강 ${l.title}`;
+    renderList();
+    rail.classList.remove("open"); railToggle.setAttribute("aria-expanded", "false");
+    if (scroll) window.scrollTo({ top: 0 });
+  }
+
+  listEl.addEventListener("click", e => {
+    const b = e.target.closest("button[data-id]");
+    if (b) show(b.dataset.id, true);
+  });
+  railToggle.addEventListener("click", () => {
+    const open = rail.classList.toggle("open");
+    railToggle.setAttribute("aria-expanded", String(open));
+  });
+
+  // 첫 화면: 주소의 #id → 아직 완료 안 한 첫 강의 → 마지막 강의
+  const hash = (location.hash || "").slice(1);
+  const firstTodo = lectures.find(l => !done.has(l.id));
+  const start = lectures.find(l => l.id === hash) || firstTodo || lectures[lectures.length-1];
+  show(start ? start.id : null, false);
+})();
+</script>
+
+</body>
+</html>
