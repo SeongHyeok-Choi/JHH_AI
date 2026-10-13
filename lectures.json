@@ -1,0 +1,20 @@
+[
+ {
+  "id": "l0",
+  "no": "0",
+  "title": "시작하기 전에",
+  "date": "2026-10-12",
+  "duration": "5분",
+  "summary": "이 강의실을 쓰는 방법과 미리 준비할 것을 정리했어요.",
+  "file": "lectures/00-start.txt"
+ },
+ {
+  "id": "w1",
+  "no": "1",
+  "title": "AI와의 만남",
+  "date": "2026-10-12",
+  "duration": "약 1시간",
+  "summary": "AI 도구를 손에 넣고, 함께 일하는 규칙을 먼저 정해요. 과정 안내와 Claude·ChatGPT 설치.",
+  "file": "lectures/01-week1.txt"
+ }
+]
