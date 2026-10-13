@@ -16,5 +16,14 @@
   "duration": "약 1시간",
   "summary": "AI 도구를 손에 넣고, 함께 일하는 규칙을 먼저 정해요. 과정 안내와 Claude·Gemini 중 하나 설치.",
   "file": "lectures/01-week1.txt"
+ },
+ {
+  "id": "w2",
+  "no": "2",
+  "title": "메일과 보고서 초안 만들기",
+  "date": "2026-10-13",
+  "duration": "약 1시간",
+  "summary": "AI에게 처음으로 실제 일을 맡겨 봐요. 가짜 값으로 바꿔 넣는 법, 잘 시키는 법, 메일 초안과 HTML 보고서 한 장.",
+  "file": "lectures/02-week2.txt"
  }
 ]
