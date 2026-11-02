@@ -34,5 +34,14 @@
   "duration": "약 1시간 30분",
   "summary": "엑셀 표 정리·요약·수식·검산을 AI에게 맡기고, 내 일에서 줄일 수 있는 반복 작업을 찾아봐요. 실습 파일(가상 데이터) 포함.",
   "file": "lectures/03-week3.txt"
+ },
+ {
+  "id": "w4",
+  "no": "4",
+  "title": "Skill과 자동화",
+  "date": "2026-11-02",
+  "duration": "약 1시간 30분",
+  "summary": "매일 반복하는 일을 Skill(Gemini는 Gem)로 저장하고 예약을 걸어 사람 없이 돌게 해요. 내 일에 필요한 자료 매일 받아 보기 + 내 일 Skill 하나 만들기.",
+  "file": "lectures/04-week4.txt"
  }
 ]
